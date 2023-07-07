@@ -42,7 +42,11 @@ import { checkout as checkoutApplePay } from '../payment-methods/apple-pay';
 import { checkout as checkoutStripe } from '../payment-methods/stripe';
 import { paymentProcessStatusShouldRunSelector } from './selectors';
 import { PAYMENT_STATE, DEFAULT_PAYMENT_STATE_POLLING_DELAY_SECS, POLLING_PAYMENT_STATES } from './constants';
-import { generateApiError } from './handleRequestError';
+import {
+  generateError,
+} from './handleRequestError';
+import FieldValidationError from './fieldValidationError';
+import ApiMessageError from './apiMessageError';
 
 export const paymentMethods = {
   cybersource: checkoutWithToken,
@@ -357,7 +361,9 @@ export function* handlePaymentState() {
           break;
         }
       } catch (innerError) {
-        const shouldExitExecution = innerError instanceof ReferenceError;
+        const shouldExitExecution = innerError instanceof ReferenceError
+            || innerError instanceof FieldValidationError
+            || innerError instanceof ApiMessageError;
 
         logError(innerError, { basketId, paymentNumber, isFatalError: shouldExitExecution });
 
@@ -381,12 +387,11 @@ export function* handlePaymentState() {
   } catch (error) {
     // Here we wrap whatever exception we have (either a fatal one or after the max tries) to display our basket
     //   inconsistency error banner to the user, forcing them to refresh, and we can get back to moral execution.
-    const basketMessageError = generateApiError([
-      {
-        error_code: ERROR_CODES.BASKET_CHANGED,
-        user_message: 'error',
-      },
-    ], false);
+    const basketMessageError = generateError(
+      ERROR_CODES.BASKET_CHANGED,
+      'error',
+      error,
+    );
 
     // This seems redundant, but we should end our action before terminating.
     yield put(pollPaymentState.failure(basketMessageError));

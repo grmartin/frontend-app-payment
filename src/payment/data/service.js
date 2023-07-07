@@ -10,21 +10,13 @@ ensureConfig([
 ], 'payment API service');
 
 function handleBasketApiError(requestError) {
-  try {
-    // Always throws an error:
-    handleRequestError(requestError);
-  } catch (errorWithMessages) {
-    const processedError = new Error();
-    processedError.messages = errorWithMessages.messages;
-    processedError.errors = errorWithMessages.errors;
-    processedError.fieldErrors = errorWithMessages.fieldErrors;
+  const errorWithMessages = handleRequestError(requestError);
 
-    if (requestError.response.data) {
-      processedError.basket = transformResults(requestError.response.data);
-    }
-
-    throw processedError;
+  if (requestError.response.data) {
+    errorWithMessages.basket = transformResults(requestError.response.data);
   }
+
+  throw errorWithMessages;
 }
 
 export async function getCaptureKey() {

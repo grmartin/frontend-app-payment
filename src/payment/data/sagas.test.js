@@ -47,7 +47,7 @@ import {
   POLLING_PAYMENT_STATES,
 } from './constants';
 import { ERROR_CODES } from '../../feedback/data/constants';
-import { generateApiError } from './handleRequestError';
+import { generateError } from './handleRequestError';
 import { paymentState } from './reducers';
 
 jest.mock('@edx/frontend-platform/auth');
@@ -900,12 +900,10 @@ describe('saga tests', () => {
     ]);
 
     const expectRuntimeFailure = () => {
-      const basketMessageError = generateApiError([
-        {
-          error_code: ERROR_CODES.BASKET_CHANGED,
-          user_message: 'error',
-        },
-      ], false);
+      const basketMessageError = generateError(
+        ERROR_CODES.BASKET_CHANGED,
+        'error',
+      );
 
       return [
         pollPaymentState.failure(basketMessageError),
