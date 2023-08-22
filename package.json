@@ -73,7 +73,7 @@
     "@edx/frontend-build": "12.8.61",
     "@edx/reactifex": "^2.1.0",
     "@testing-library/jest-dom": "^5.14.1",
-    "@testing-library/react": "^12.1.5",
+    "@testing-library/react": "^14.0.0",
     "@wojtekmaj/enzyme-adapter-react-17": "^0.8.0",
     "audit-ci": "^6.3.0",
     "axios-mock-adapter": "^1.21.1",
